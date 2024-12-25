@@ -7,11 +7,11 @@ RESET='\033[0m'
 
 BUILD_DIR="build"
 BIN_DIR="bin"
-
+output_dir="output"
 
 clean() {
     echo -e "${BOLD}${BRIGHT_WHITE}Cleaning build and bin directories...${RESET}"
-    rm -rf ${BUILD_DIR} ${BIN_DIR}
+    rm -rf ${BUILD_DIR} ${BIN_DIR} ${output_dir}
 }
 
 
