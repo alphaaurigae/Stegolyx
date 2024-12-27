@@ -70,7 +70,7 @@ inline void embedTextLSB(Mat &image, const string &text) {
         throw runtime_error("Insufficient image capacity for embedding text.");
     }
 
-    string startMarker = "\xEF\xBB\xBF";
+    string startMarker = "\xE2\x80\x8B";
     for (char character : startMarker) {
         embedBit(image, bitIndex, channels, character);
     }
@@ -85,7 +85,7 @@ inline void embedTextLSB(Mat &image, const string &text) {
         embedBit(image, bitIndex, channels, character);
     }
 
-    string endMarker = "\xFE\xFF";
+    string endMarker = "\xE2\x80\x8C";
     for (char character : endMarker) {
         embedBit(image, bitIndex, channels, character);
     }
@@ -99,7 +99,7 @@ inline string extractTextLSB(const Mat &image) {
     unsigned char currentChar = 0;
     int bitIndex = 0;
 
-    string startMarker = "\xEF\xBB\xBF";
+    string startMarker = "\xE2\x80\x8B";
     for (char markerChar : startMarker) {
         currentChar = 0;
         extractBits(bitIndex, image, currentChar, imageWidth, imageHeight, channels);
@@ -121,7 +121,7 @@ inline string extractTextLSB(const Mat &image) {
         decodedText.push_back(currentChar);
     }
 
-    string endMarker = "\xFE\xFF";
+    string endMarker = "\xE2\x80\x8C";
     for (char markerChar : endMarker) {
         currentChar = 0;
         extractBits(bitIndex, image, currentChar, imageWidth, imageHeight, channels);
@@ -134,3 +134,19 @@ inline string extractTextLSB(const Mat &image) {
 }
 
 #endif
+
+
+// using "invisble" unicode as markers e.g but not limited to:
+// \xE2\x80\x8C | U+200C Zero Width Non-Joiner
+// \xE2\x80\x8B | U+200B Zero Width Space
+// \xE2\x80\x8D | U+200D Zero Width Joiner
+// \xEF\xBB\xBF | U+FEFF Zero Width No-Break Space
+// \xC2\xAD     | U+00AD Soft Hyphen
+// \xC2\xA0     | U+00A0 Non-Breaking Space
+// Private Use Area (U+E000 - U+F8FF)
+// Control Characters (U+0000 - U+001F, U+007F)
+
+// \\ =byte e.g 3 bytes per marker \xE2\x80\x8B
+// Increase=9(start)+9(end)+4(length)+N(text)=22+Nbytes
+
+
