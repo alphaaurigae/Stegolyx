@@ -1,3 +1,5 @@
+// LSB null byte (works somewhat but buggy appending chars to extracted text randomly.
+
 #ifndef TEXT_LSB_H
 #define TEXT_LSB_H
 
@@ -33,9 +35,9 @@ inline void embedTextLSB(Mat &image, const string &text) {
                 image.at<uchar>(y, x) = (image.at<uchar>(y, x) & 0xFE) | bit;
             } else {
                 if (channels == 4) {
-                    image.at<Vec4b>(y, x)[channel] = (image.at<Vec4b>(y, x)[channel] & 0xFE) | bit;  // RGBA
+                    image.at<Vec4b>(y, x)[channel] = (image.at<Vec4b>(y, x)[channel] & 0xFE) | bit;
                 } else {
-                    image.at<Vec3b>(y, x)[channel] = (image.at<Vec3b>(y, x)[channel] & 0xFE) | bit;  // BGR/RGB
+                    image.at<Vec3b>(y, x)[channel] = (image.at<Vec3b>(y, x)[channel] & 0xFE) | bit;
                 }
             }
             bitIndex++;
@@ -56,9 +58,9 @@ inline void embedTextLSB(Mat &image, const string &text) {
                 image.at<uchar>(y, x) = (image.at<uchar>(y, x) & 0xFE) | bit;
             } else {
                 if (channels == 4) {
-                    image.at<Vec4b>(y, x)[channel] = (image.at<Vec4b>(y, x)[channel] & 0xFE) | bit;  // RGBA
+                    image.at<Vec4b>(y, x)[channel] = (image.at<Vec4b>(y, x)[channel] & 0xFE) | bit;
                 } else {
-                    image.at<Vec3b>(y, x)[channel] = (image.at<Vec3b>(y, x)[channel] & 0xFE) | bit;  // BGR/RGB
+                    image.at<Vec3b>(y, x)[channel] = (image.at<Vec3b>(y, x)[channel] & 0xFE) | bit;
                 }
             }
             bitIndex++;
@@ -85,11 +87,11 @@ inline string extractTextLSB(const Mat& image) {
                 int bit = 0;
 
                 if (channels == 4) {
-                    bit = image.at<Vec4b>(y, x)[channel] & 1;  // RGBA
+                    bit = image.at<Vec4b>(y, x)[channel] & 1;
                 } else if (channels == 3) {
-                    bit = image.at<Vec3b>(y, x)[channel] & 1;  // RGB
+                    bit = image.at<Vec3b>(y, x)[channel] & 1;
                 } else if (channels == 1) {
-                    bit = image.at<uchar>(y, x) & 1;  // Grayscale
+                    bit = image.at<uchar>(y, x) & 1;
                 }
 
                 currentChar |= (bit << (7 - bitIndex));

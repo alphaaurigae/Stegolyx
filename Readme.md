@@ -1,8 +1,11 @@
 # Stegolyx
 
 - Image steganopgraphy - experimental (only LSB for now).
-- Text to image & extraction seems to work mostly. In some cases random characters are appended to the extracted ouput due to decode termination point.
-- image to image only a placeholder.
+> Start to end marker apparently works more precise for text extraction, as end null byte appends characters on some images.
+
+- Image to image only a placeholder yet.
+
+- Testing, experimental....
 
 
 ## Deps

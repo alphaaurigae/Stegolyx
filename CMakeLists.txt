@@ -139,7 +139,9 @@ crypto
 opencv_core 
 opencv_imgproc 
 opencv_highgui
-
+boost_system
+boost_thread
+boost_filesystem
 )
 find_package(OpenCV REQUIRED)
 
