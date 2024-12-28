@@ -9,13 +9,21 @@ bin="stegolyx"
 lsb_dir="lsb"
 
 
-input_main="jpegPIA24431.jpg" # 91.1 kib
-#input_main="xubuntu-vivid.png" #  459.3 kib
+#input_main="jpegPIA24431.jpg" # 91.1 kib
+input_main="xubuntu-vivid.png" #  459.3 kib
 #input_main="1010maverick.png" # 890.2
 
 #input_fg="567px-Larry-nefarius-v2.svg.png" # 32.2 kib
 #input_fg="Tux.svg.png" # 297.1 kib
-input_text="daremightythings"
+#input_text="daremightythings"
+input_text="daremightythings abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789  \!\"$%&/()=?\`|><#+'*~{[]}-.,_:;"
+
+# for testing multi line embedding (not working)
+#input_text=$(cat <<- 'EOF'
+#	daremightythings abcdefghijklmnopqrstuvwxyz 
+#	ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789  ^\!\"$%&/()=?\`|><#+'*~{[]}-.,_:;
+#	EOF
+#)
 
 output_image_textsecret="output_textsecret.png"
 decode_text_textfile="decoded_text.txt"
@@ -45,6 +53,7 @@ echo ""
 echo ""
 
 
+# for testing ignore
 #rm -f $workdir/$lsb_dir/$output_image_textsecret
 #mkdir -p "$output_dir/$lsb_dir"
 #echo "Embedding text into image..."
@@ -78,3 +87,4 @@ echo ""
 #$workdir/$bin -mode image -method lsb -i $output_dir/$lsb_dir/$output_image_imagesecret -o $output_dir/$lsb_dir/$decode_image_imagesecret -d
 
 
+#§’¬¸¸

@@ -14,3 +14,13 @@
 
 ```
 
+## Todo
+
+- multi line text
+- image to image
+- alternative embedding to LSB only
+- other alternatives to startend marker / null marker?
+- beautify code
+- sec?
+- alternative obfuscation tables?
+- encryption?

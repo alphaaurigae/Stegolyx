@@ -1,5 +1,5 @@
-#include "Text_LSB_start-end.h"
-//#include "Text_LSB_null.h"  (for testing instead of Text_LSB_start-end.h)
+//#include "Text_LSB_start-end.h"
+#include "Text_LSB_null.h"  //(for testing instead of Text_LSB_start-end.h)
 #include "Image_LSB.h"
 #include <opencv2/opencv.hpp>
 #include <iostream>
@@ -93,8 +93,14 @@ int main(int argc, char** argv) {
         string extension = output_file.substr(output_file.find_last_of(".") + 1);
 
         if (extension == "png") {
-            compression_params.push_back(IMWRITE_PNG_COMPRESSION);
-            compression_params.push_back(0);
+    compression_params.push_back(IMWRITE_PNG_COMPRESSION);
+    compression_params.push_back(9);//0-9
+
+
+    //compression_params.push_back(IMWRITE_PNG_STRATEGY);
+   // compression_params.push_back(IMWRITE_PNG_STRATEGY_FILTERED);
+  //  compression_params.push_back(IMWRITE_PNG_STRATEGY_HUFFMAN_ONLY);
+   // compression_params.push_back(IMWRITE_PNG_STRATEGY_RLE);
         }
         else if (extension == "jpg" || extension == "jpeg") {
             compression_params.push_back(IMWRITE_JPEG_QUALITY);
