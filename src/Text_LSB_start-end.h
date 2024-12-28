@@ -8,9 +8,72 @@
 #include <string>
 #include <bitset>
 #include <cassert>
+#include <unordered_map>
 
 using namespace cv;
 using namespace std;
+
+// ¯\_(ツ)_/¯
+unordered_map<char, string> obfuscationMap = {
+    {'A', "\xEF\xBB\xBF"}, {'B', "\xC2\xAD"}, {'C', "\xE2\x81\xAF"}, {'D', "\xE2\x80\x8E"},
+    {'E', "\xE2\x80\x8F"}, {'F', "\xE2\x80\xAA"}, {'G', "\xE2\x80\xAB"}, {'H', "\xE2\x80\xAC"},
+    {'I', "\xE2\x80\xAD"}, {'J', "\xE2\x80\xAE"}, {'K', "\xE2\x80\xAF"}, {'L', "\xE2\x80\xB0"},
+    {'M', "\xE2\x80\xB1"}, {'N', "\xE2\x80\xB2"}, {'O', "\xE2\x80\xB3"}, {'P', "\xE2\x80\xB4"},
+    {'Q', "\xE2\x80\xB5"}, {'R', "\xE2\x80\xB6"}, {'S', "\xE2\x80\xB7"}, {'T', "\xE2\x80\xB8"},
+    {'U', "\xE2\x80\xB9"}, {'V', "\xE2\x80\xBA"}, {'W', "\xE2\x80\xBB"}, {'X', "\xF0\x9F\xA0\xAF"},
+    {'Y', "\xE2\x80\xBD"}, {'Z', "\xE2\x80\xBE"}, 
+    {'a', "\xE2\x80\x8A"}, {'b', "\xE2\x82\x99"}, {'c', "\x28\x00"}, {'d', "\xE2\x82\x9B"},
+    {'e', "\xE2\x80\x89"}, {'f', "\xD8\x9F\xD8\xA0"}, {'g', "\xE1\x9B\xB4"}, {'h', "\xE1\xA0\x8B"},
+    {'i', "\xE1\xA0\x8D"}, {'j', "\xF0\x9D\x85\xBA"}, {'k', "\xE2\x82\x9A"}, {'l', "\xF0\x9D\x85\xB5"},
+    {'m', "\xF0\x9D\x85\xB4"}, {'n', "\xF0\x9D\x85\xB3"}, {'o', "\xF0\x9D\x85\x99"}, {'p', "\xF3\x98\x9C"},
+    {'q', "\xEF\xB8\xBC"}, {'r', "\xF0\x9F\xA0\xA6"}, {'s', "\xF0\x9F\xA0\xA7"}, {'t', "\xF0\x9F\xA0\xA8"},
+    {'u', "\xE2\x80\x87"}, {'v', "\xF0\x9F\xA0\xA9"}, {'w', "\xE2\x80\x80"}, {'x', "\x20\x2E"},
+    {'y', "\xE2\x80\x83"}, {'z', "\xE2\x80\x85"},
+    {'0', "\xE2\x80\x8D"}, {'1', "\xE2\x80\x8C"}, {'2', "\xE2\x80\x88"}, {'3', "\xE2\x81\xAE"},
+    {'4', "\xE2\x80\x8B"}, {'5', "\xCC\x8F"}, {'6', "\xD8\xA0\xD8\xA1"}, {'7', "\xE1\x9B\xB5"},
+    {'8', "\xE1\xA0\x8C"}, {'9', "\xF0\x9D\x85\xB6"},
+    {' ', "\xC2\xA0"}, {'!', "\xE2\x80\x86"}, {'"', "\xF0\x9F\xA0\xAE"}, {'#', "\xE1\xA0\x8E"},
+    {'$', "\xE2\x80\xBC"}, {'%', "\xE2\x80\x81"}, {'&', "\xE2\x80\x84"}, {'\'', "\xE2\x80\xBF"},
+    {'(', "\xE0\x02\x09"}, {')', "\xEF\xA0\x8A"}, {'*', "\xE2\x81\x82"}, {'+', "\xEF\xA0\x8B"},
+    {',', "\xE2\x81\x84"}, {'-', "\xE2\x81\x85"}, {'.', "\xE2\x81\x86"}, {'/', "\xE2\x81\x87"},
+    {':', "\xE2\x81\x88"}, {';', "\xE2\x81\x89"}, {'<', "\xE2\x81\x8A"}, {'=', "\xE2\x81\x8B"},
+    {'>', "\xE2\x81\x8C"}, {'?', "\xE2\x81\x8D"}, {'@', "\xE2\x81\x8E"}, {'[', "\xE2\x81\x8F"},
+    {'\\', "\xE2\x81\x90"}, {']', "\xE2\x81\x91"}, {'^', "\xE2\x81\x92"}, {'_', "\xE2\x81\x93"},
+    {'`', "\xE2\x81\x94"}, {'{', "\xE2\x81\x95"}, {'|', "\xE2\x81\x96"}, {'}', "\xE2\x81\x97"},
+    {'~', "\xE2\x81\x98"}
+};
+
+inline string obfuscateText(const string &text) {
+    string obfuscatedText;
+    for (char c : text) {
+        auto it = obfuscationMap.find(c);
+        if (it != obfuscationMap.end()) {
+            obfuscatedText += it->second;
+        } else {
+            obfuscatedText += c;
+        }
+    }
+    return obfuscatedText;
+}
+
+inline string deobfuscateText(const string &obfuscatedText) {
+    string deobfuscatedText;
+    string currentInvisible;
+    for (char c : obfuscatedText) {
+        currentInvisible += c;
+        for (const auto &entry : obfuscationMap) {
+            if (entry.second == currentInvisible) {
+                deobfuscatedText += entry.first;
+                currentInvisible.clear();
+                break;
+            }
+        }
+        if (currentInvisible.empty()) {
+            continue;
+        }
+    }
+    return deobfuscatedText;
+}
 
 inline int extractBitAndUpdate(int &bitIndex, const Mat &image, unsigned char &currentChar, int imageWidth, int imageHeight, int channels) {
     if (bitIndex >= imageWidth * imageHeight * channels) {
@@ -60,6 +123,7 @@ inline void embedBit(Mat &image, int &bitIndex, int channels, uint8_t byte) {
     }
 }
 
+
 inline void embedTextLSB(Mat &image, const string &text) {
     int channels = image.channels();
     int bitIndex = 0;
@@ -75,13 +139,15 @@ inline void embedTextLSB(Mat &image, const string &text) {
         embedBit(image, bitIndex, channels, character);
     }
 
-    uint32_t textSize = text.size();
+    string obfuscatedText = obfuscateText(text);
+
+    uint32_t textSize = obfuscatedText.size();
     for (int i = 3; i >= 0; --i) {
         char lengthByte = (textSize >> (i * 8)) & 0xFF;
         embedBit(image, bitIndex, channels, lengthByte);
     }
 
-    for (char character : text) {
+    for (char character : obfuscatedText) {
         embedBit(image, bitIndex, channels, character);
     }
 
@@ -90,6 +156,7 @@ inline void embedTextLSB(Mat &image, const string &text) {
         embedBit(image, bitIndex, channels, character);
     }
 }
+
 
 inline string extractTextLSB(const Mat &image) {
     int channels = image.channels();
@@ -130,23 +197,12 @@ inline string extractTextLSB(const Mat &image) {
         }
     }
 
-    return decodedText;
+    return deobfuscateText(decodedText);
 }
+
+
 
 #endif
 
-
-// using "invisble" unicode as markers e.g but not limited to:
-// \xE2\x80\x8C | U+200C Zero Width Non-Joiner
-// \xE2\x80\x8B | U+200B Zero Width Space
-// \xE2\x80\x8D | U+200D Zero Width Joiner
-// \xEF\xBB\xBF | U+FEFF Zero Width No-Break Space
-// \xC2\xAD     | U+00AD Soft Hyphen
-// \xC2\xA0     | U+00A0 Non-Breaking Space
-// Private Use Area (U+E000 - U+F8FF)
-// Control Characters (U+0000 - U+001F, U+007F)
-
-// \\ =byte e.g 3 bytes per marker \xE2\x80\x8B
-// Increase=9(start)+9(end)+4(length)+N(text)=22+Nbytes
 
 
