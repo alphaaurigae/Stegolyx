@@ -5,11 +5,14 @@ cmake_minimum_required(VERSION 3.28.3)
 
 
 set(MY_PROJECT_NAME "Stegolyx")
-set(MY_PROJECT_BIN_NAME "stegolyx")
 set(MY_PROJECT_VERSION "888.0")
 
 
-project(${MY_PROJECT_BIN_NAME} VERSION ${MY_PROJECT_VERSION} LANGUAGES CXX)
+set(MY_PROJECT_BIN1_NAME "stegolyx")
+# [add executeables here] main name definition
+
+
+project(${MY_PROJECT_NAME} VERSION ${MY_PROJECT_VERSION} LANGUAGES CXX)
 
 
 set(CMAKE_CXX_STANDARD 23)
@@ -213,49 +216,62 @@ file(GLOB_RECURSE SRCS ${SRC_DIR}/*.cpp)  # depth 1
 
 
 # Build -------------------------------------------------------------------------------------------------------------------------------------
-link_directories(/usr/lib/x86_64-linux-gnu) 
 
 
-find_package(PkgConfig REQUIRED)
+#find_package(OpenCV REQUIRED)
+#
+#if(NOT (OpenCV_VERSION VERSION_GREATER "4.6.0" OR OpenCV_VERSION VERSION_EQUAL "4.6.0"))
+#    message(FATAL_ERROR "OpenCV version must be 4.6.0 or higher, found version ${OpenCV_VERSION}")
+#endif()
 
+# find_package(OpenCV REQUIRED VERSION 4.5.0 EXACT)
+# find_package(OpenCV REQUIRED VERSION 3.4.0 EXACT 4.5.0)
+find_package(OpenCV REQUIRED)
 
-pkg_check_modules(MAGICK REQUIRED Magick++)
-
-
-include_directories(${MAGICK_INCLUDE_DIRS})
-
-
+# global
 set(LIBS_MAIN
+)
+
+# per bin
+set(LIBS_${MY_PROJECT_BIN1_NAME}
 z
 ssl
 crypto
-opencv_core 
-opencv_imgproc 
-opencv_highgui
+${OpenCV_LIBS}  # too much to sort this out, lets include all for now. see debug bottom.
 boost_system
 boost_thread
 boost_filesystem
 )
 
 
-find_package(OpenCV REQUIRED)
+option(BUILD_${MY_PROJECT_BIN1_NAME} "Enable ${MY_PROJECT_BIN1_NAME}" ON)
+# [add executeables here]
 
 
-add_executable(${MY_PROJECT_BIN_NAME} ${SRCS})
+function(add_feature_executable FEATURE_NAME FEATURE_SOURCES)
+    set(FEATURE_OPTION "BUILD_${FEATURE_NAME}")
+
+    if(${${FEATURE_OPTION}})
+        add_executable(${FEATURE_NAME} ${FEATURE_SOURCES})
+        target_link_libraries(${FEATURE_NAME} PRIVATE ${LIBS_MAIN})
+
+        # Conditionally link feature-specific libraries
+        if(${FEATURE_NAME} STREQUAL ${MY_PROJECT_BIN1_NAME})
+            target_link_libraries(${FEATURE_NAME} PRIVATE ${LIBS_${MY_PROJECT_BIN1_NAME}})
+        endif()
+        # [add executeables here]
+
+        set_target_properties(${FEATURE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+    endif()
+endfunction()
 
 
-target_link_libraries(${MY_PROJECT_BIN_NAME} ${LIBS_MAIN} ${MAGICK_LIBRARIES})
-
-
-set_target_properties(${MY_PROJECT_BIN_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
-)
+add_feature_executable(${MY_PROJECT_BIN1_NAME} ${SRC_DIR}/${MY_PROJECT_BIN1_NAME}/main.cpp)
+# [add executeables here]
 
 
 file(MAKE_DIRECTORY ${BUILD_DIR})
 file(MAKE_DIRECTORY ${BIN_DIR})
-
-
 # Clean -------------------------------------------------------------------------------------------------------------------------------------
 add_custom_target(my_clean
     COMMAND rm -rf ${BUILD_DIR} ${BIN_DIR}
@@ -283,6 +299,16 @@ message(STATUS "Warnings as Errors: ${ENABLE_WARNINGS_AS_ERRORS}")
 message(STATUS "Verbose Makefiles: ${ENABLE_VERBOSE_MAKEFILES}")
 message(STATUS "Compile Commands Export: ${ENABLE_COMPILE_COMMANDS}")
 message(STATUS "------------------------------------------------------------")
+
+message(STATUS "Build ${MY_PROJECT_BIN1_NAME}: ${BUILD_${MY_PROJECT_BIN1_NAME}}")
+# [add executeables here]
+
+
+message(STATUS "Found OpenCV version: ${OpenCV_VERSION}")
+message(STATUS "OpenCV_LIBS: ${OpenCV_LIBS}")
+message(STATUS "OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+
+
 set(ASCII_ART "
            .-. .               .;               
    .;;;.`-'...;...            .;'   .;.    _    
