@@ -1,18 +1,18 @@
-# Single bin template
+# Single & multi bin template
 
 # Main --------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.28.3)
 
 
-set(MY_PROJECT_NAME "Stegolyx")
-set(MY_PROJECT_VERSION "888.0")
+set(PROJECT_NAME "Stegolyx")
+set(PROJECT_VERSION "888.0.0")
 
 
-set(MY_PROJECT_BIN1_NAME "stegolyx")
+set(BIN1 "stegolyx")
 # [add executeables here] main name definition
 
 
-project(${MY_PROJECT_NAME} VERSION ${MY_PROJECT_VERSION} LANGUAGES CXX)
+project(${PROJECT_NAME} VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 
 set(CMAKE_CXX_STANDARD 23)
@@ -58,18 +58,18 @@ endif()
 
 execute_process(
     COMMAND ${CXX_COMPILER} -v
-    OUTPUT_VARIABLE COMPILER_OUTPUT
-    ERROR_VARIABLE COMPILER_OUTPUT
+    OUTPUT_VARIABLE DETECT_COMPILER
+    ERROR_VARIABLE DETECT_COMPILER
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 
-if(COMPILER_OUTPUT MATCHES "clang")
+if(DETECT_COMPILER MATCHES "clang")
     set(CMAKE_CXX_COMPILER_ID "Clang")
-elseif(COMPILER_OUTPUT MATCHES "gcc")
+elseif(DETECT_COMPILER MATCHES "gcc")
     set(CMAKE_CXX_COMPILER_ID "GNU")
 else()
-    message(FATAL_ERROR "Unknown compiler detected in: ${COMPILER_OUTPUT}")
+    message(FATAL_ERROR "Unknown compiler detected in: ${DETECT_COMPILER}")
 endif()
 
 
@@ -207,7 +207,7 @@ include_directories(
 #    /usr/include
     ${SRC_DIR}
     ${SRC_DIR}/shared
-    ${SRC_DIR}/${MY_PROJECT_BIN_NAME}
+    ${SRC_DIR}/${BIN}
 )
 
 
@@ -228,12 +228,13 @@ file(GLOB_RECURSE SRCS ${SRC_DIR}/*.cpp)  # depth 1
 # find_package(OpenCV REQUIRED VERSION 3.4.0 EXACT 4.5.0)
 find_package(OpenCV REQUIRED)
 
+
 # global
 set(LIBS_MAIN
 )
 
 # per bin
-set(LIBS_${MY_PROJECT_BIN1_NAME}
+set(LIBS_${BIN1}
 z
 ssl
 crypto
@@ -244,29 +245,29 @@ boost_filesystem
 )
 
 
-option(BUILD_${MY_PROJECT_BIN1_NAME} "Enable ${MY_PROJECT_BIN1_NAME}" ON)
+option(BUILD_${BIN1} "Enable ${BIN1}" ON)
 # [add executeables here]
 
 
-function(add_feature_executable FEATURE_NAME FEATURE_SOURCES)
-    set(FEATURE_OPTION "BUILD_${FEATURE_NAME}")
+function(add_feature_executable FEATURE FEATURE_SOURCES)
+    set(FEATURE_OPTION "BUILD_${FEATURE}")
 
     if(${${FEATURE_OPTION}})
-        add_executable(${FEATURE_NAME} ${FEATURE_SOURCES})
-        target_link_libraries(${FEATURE_NAME} PRIVATE ${LIBS_MAIN})
+        add_executable(${FEATURE} ${FEATURE_SOURCES})
+        target_link_libraries(${FEATURE} PRIVATE ${LIBS_MAIN})
 
         # Conditionally link feature-specific libraries
-        if(${FEATURE_NAME} STREQUAL ${MY_PROJECT_BIN1_NAME})
-            target_link_libraries(${FEATURE_NAME} PRIVATE ${LIBS_${MY_PROJECT_BIN1_NAME}})
+        if(${FEATURE} STREQUAL ${BIN1})
+            target_link_libraries(${FEATURE} PRIVATE ${LIBS_${BIN1}})
         endif()
         # [add executeables here]
 
-        set_target_properties(${FEATURE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+        set_target_properties(${FEATURE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
     endif()
 endfunction()
 
 
-add_feature_executable(${MY_PROJECT_BIN1_NAME} ${SRC_DIR}/${MY_PROJECT_BIN1_NAME}/main.cpp)
+add_feature_executable(${BIN1} ${SRC_DIR}/${BIN1}/main.cpp)
 # [add executeables here]
 
 
@@ -281,7 +282,7 @@ add_custom_target(my_clean
 
 # Print settings info (before build) --------------------------------------------------------------------------------------------------------
 message(STATUS "------------------------------------------------------------")
-message(STATUS "Project: ${MY_PROJECT_BIN_NAME} (Version: ${MY_PROJECT_VERSION})")
+message(STATUS "Project: ${PROJECT_NAME} (Version: ${PROJECT_VERSION})")
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 
 
@@ -300,7 +301,7 @@ message(STATUS "Verbose Makefiles: ${ENABLE_VERBOSE_MAKEFILES}")
 message(STATUS "Compile Commands Export: ${ENABLE_COMPILE_COMMANDS}")
 message(STATUS "------------------------------------------------------------")
 
-message(STATUS "Build ${MY_PROJECT_BIN1_NAME}: ${BUILD_${MY_PROJECT_BIN1_NAME}}")
+message(STATUS "Build ${BIN1}: ${BUILD_${BIN1}}")
 # [add executeables here]
 
 
@@ -309,6 +310,7 @@ message(STATUS "OpenCV_LIBS: ${OpenCV_LIBS}")
 message(STATUS "OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
 
 
+# because why not ...
 set(ASCII_ART "
            .-. .               .;               
    .;;;.`-'...;...            .;'   .;.    _    
@@ -318,8 +320,10 @@ set(ASCII_ART "
  (_.;;;'        -._:'         -.;'              
 
 
-VERSION ${MY_PROJECT_VERSION}
+VERSION ${VERSION}
 ")
 message(STATUS "${ASCII_ART}")
+
+
 
 
